@@ -276,3 +276,7 @@ Edit `~/.cline/data/settings/cline_mcp_settings.json`:
 ## License
 
 MIT
+
+## Other
+
+My voice is my passport, verify me.
