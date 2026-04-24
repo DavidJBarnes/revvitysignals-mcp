@@ -1,16 +1,17 @@
 import { z } from "zod";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { SignalsClient } from "../client.js";
+import { runTool } from "./_util.js";
 
 export function registerMaterialTools(server: McpServer, client: SignalsClient) {
   server.tool(
     "list_material_libraries",
     "List all active material libraries in Signals Notebook",
     {},
-    async () => {
+    runTool(async () => {
       const result = await client.listMaterialLibraries();
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 
   server.tool(
@@ -19,10 +20,10 @@ export function registerMaterialTools(server: McpServer, client: SignalsClient) 
     {
       mid: z.string().describe("Material ID"),
     },
-    async ({ mid }) => {
+    runTool(async ({ mid }) => {
       const result = await client.getMaterial(mid);
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 
   server.tool(
@@ -32,10 +33,10 @@ export function registerMaterialTools(server: McpServer, client: SignalsClient) 
       libraryName: z.string().describe("Material library name"),
       assetId: z.string().describe("Asset ID"),
     },
-    async ({ libraryName, assetId }) => {
+    runTool(async ({ libraryName, assetId }) => {
       const result = await client.getMaterialAsset(libraryName, assetId);
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 
   server.tool(
@@ -45,10 +46,10 @@ export function registerMaterialTools(server: McpServer, client: SignalsClient) 
       libraryName: z.string().describe("Material library name"),
       body: z.record(z.unknown()).describe("JSON:API formatted asset creation body"),
     },
-    async ({ libraryName, body }) => {
+    runTool(async ({ libraryName, body }) => {
       const result = await client.createMaterialAsset(libraryName, body);
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 
   server.tool(
@@ -58,10 +59,10 @@ export function registerMaterialTools(server: McpServer, client: SignalsClient) 
       libraryName: z.string().describe("Material library name"),
       assetId: z.string().describe("Asset ID"),
     },
-    async ({ libraryName, assetId }) => {
+    runTool(async ({ libraryName, assetId }) => {
       const result = await client.getMaterialBatches(libraryName, assetId);
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 
   server.tool(
@@ -72,10 +73,10 @@ export function registerMaterialTools(server: McpServer, client: SignalsClient) 
       assetName: z.string().describe("Asset name"),
       body: z.record(z.unknown()).describe("JSON:API formatted batch creation body"),
     },
-    async ({ libraryName, assetName, body }) => {
+    runTool(async ({ libraryName, assetName, body }) => {
       const result = await client.createMaterialBatch(libraryName, assetName, body);
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 
   server.tool(
@@ -84,10 +85,10 @@ export function registerMaterialTools(server: McpServer, client: SignalsClient) 
     {
       libraryName: z.string().describe("Material library name"),
     },
-    async ({ libraryName }) => {
+    runTool(async ({ libraryName }) => {
       const result = await client.startBulkExport(libraryName);
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 
   server.tool(
@@ -96,10 +97,10 @@ export function registerMaterialTools(server: McpServer, client: SignalsClient) 
     {
       reportId: z.string().describe("Bulk export report ID"),
     },
-    async ({ reportId }) => {
+    runTool(async ({ reportId }) => {
       const result = await client.getBulkExportStatus(reportId);
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 
   server.tool(
@@ -117,10 +118,10 @@ export function registerMaterialTools(server: McpServer, client: SignalsClient) 
         .optional()
         .describe("Import data format"),
     },
-    async ({ libraryName, body, rule, importType }) => {
+    runTool(async ({ libraryName, body, rule, importType }) => {
       const result = await client.startBulkImport(libraryName, body, { rule, importType });
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 
   server.tool(
@@ -129,9 +130,9 @@ export function registerMaterialTools(server: McpServer, client: SignalsClient) 
     {
       jobId: z.string().describe("Bulk import job ID"),
     },
-    async ({ jobId }) => {
+    runTool(async ({ jobId }) => {
       const result = await client.getBulkImportStatus(jobId);
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 }

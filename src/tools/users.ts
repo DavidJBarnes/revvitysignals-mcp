@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { SignalsClient } from "../client.js";
+import { runTool } from "./_util.js";
 
 export function registerUserTools(server: McpServer, client: SignalsClient) {
   server.tool(
@@ -12,10 +13,10 @@ export function registerUserTools(server: McpServer, client: SignalsClient) {
       offset: z.number().int().min(0).optional().describe("Pagination offset"),
       limit: z.number().int().min(1).optional().describe("Pagination limit"),
     },
-    async (params) => {
+    runTool(async (params) => {
       const result = await client.listUsers(params);
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 
   server.tool(
@@ -24,10 +25,10 @@ export function registerUserTools(server: McpServer, client: SignalsClient) {
     {
       userId: z.string().describe("User ID"),
     },
-    async ({ userId }) => {
+    runTool(async ({ userId }) => {
       const result = await client.getUser(userId);
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 
   server.tool(
@@ -41,7 +42,7 @@ export function registerUserTools(server: McpServer, client: SignalsClient) {
       roleId: z.string().optional().describe("Role ID to assign"),
       additionalAttributes: z.record(z.unknown()).optional().describe("Additional user attributes"),
     },
-    async ({ userName, firstName, lastName, email, roleId, additionalAttributes }) => {
+    runTool(async ({ userName, firstName, lastName, email, roleId, additionalAttributes }) => {
       const body: Record<string, unknown> = {
         data: {
           type: "user",
@@ -59,7 +60,7 @@ export function registerUserTools(server: McpServer, client: SignalsClient) {
       };
       const result = await client.createUser(body);
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 
   server.tool(
@@ -69,7 +70,7 @@ export function registerUserTools(server: McpServer, client: SignalsClient) {
       userId: z.string().describe("User ID to update"),
       attributes: z.record(z.unknown()).describe("Attributes to update (e.g. firstName, lastName, email)"),
     },
-    async ({ userId, attributes }) => {
+    runTool(async ({ userId, attributes }) => {
       const body = {
         data: {
           type: "user",
@@ -78,7 +79,7 @@ export function registerUserTools(server: McpServer, client: SignalsClient) {
       };
       const result = await client.updateUser(userId, body);
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 
   server.tool(
@@ -87,19 +88,19 @@ export function registerUserTools(server: McpServer, client: SignalsClient) {
     {
       userId: z.string().describe("User ID to disable"),
     },
-    async ({ userId }) => {
+    runTool(async ({ userId }) => {
       const result = await client.deleteUser(userId);
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 
   server.tool(
     "get_my_profile",
     "Get the profile of the currently authenticated user, including tenant info and roles",
     {},
-    async () => {
+    runTool(async () => {
       const result = await client.getMyProfile();
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 }
