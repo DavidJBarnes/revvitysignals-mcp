@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { SignalsClient } from "../client.js";
+import { runTool } from "./_util.js";
 
 export function registerSearchTools(server: McpServer, client: SignalsClient) {
   server.tool(
@@ -33,11 +34,11 @@ export function registerSearchTools(server: McpServer, client: SignalsClient) {
         .optional()
         .describe("Pagination limit (max 100, default 10)"),
     },
-    async ({ query, options, source, offset, limit }) => {
+    runTool(async ({ query, options, source, offset, limit }) => {
       const body: Record<string, unknown> = { query };
       if (options) body.options = options;
       const result = await client.searchEntities(body, { source, offset, limit });
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 }

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { SignalsClient } from "../client.js";
+import { runTool } from "./_util.js";
 
 const ENTITY_TYPES = [
   "journal",
@@ -69,10 +70,10 @@ export function registerEntityTools(server: McpServer, client: SignalsClient) {
         .optional()
         .describe("Pagination limit (max 100)"),
     },
-    async (params) => {
+    runTool(async (params) => {
       const result = await client.listEntities(params);
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 
   server.tool(
@@ -81,10 +82,10 @@ export function registerEntityTools(server: McpServer, client: SignalsClient) {
     {
       eid: z.string().describe("Entity ID (e.g. experiment:uuid)"),
     },
-    async ({ eid }) => {
+    runTool(async ({ eid }) => {
       const result = await client.getEntity(eid);
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 
   server.tool(
@@ -109,7 +110,7 @@ export function registerEntityTools(server: McpServer, client: SignalsClient) {
       digest: z.string().optional().describe("Optimistic locking digest"),
       force: z.boolean().optional().describe("Skip digest check"),
     },
-    async ({ type, name, description, templateEid, ancestorEid, additionalAttributes, digest, force }) => {
+    runTool(async ({ type, name, description, templateEid, ancestorEid, additionalAttributes, digest, force }) => {
       const body: Record<string, unknown> = {
         data: {
           type: "entity",
@@ -131,7 +132,7 @@ export function registerEntityTools(server: McpServer, client: SignalsClient) {
       };
       const result = await client.createEntity(body, { digest, force });
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 
   server.tool(
@@ -142,10 +143,10 @@ export function registerEntityTools(server: McpServer, client: SignalsClient) {
       digest: z.string().optional().describe("Optimistic locking digest"),
       force: z.boolean().optional().describe("Skip digest check"),
     },
-    async ({ eid, digest, force }) => {
+    runTool(async ({ eid, digest, force }) => {
       const result = await client.deleteEntity(eid, { digest, force });
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 
   server.tool(
@@ -158,10 +159,10 @@ export function registerEntityTools(server: McpServer, client: SignalsClient) {
         .optional()
         .describe('Ordering (e.g. "layout")'),
     },
-    async ({ eid, order }) => {
+    runTool(async ({ eid, order }) => {
       const result = await client.getEntityChildren(eid, { order });
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 
   server.tool(
@@ -170,10 +171,10 @@ export function registerEntityTools(server: McpServer, client: SignalsClient) {
     {
       eid: z.string().describe("Entity ID"),
     },
-    async ({ eid }) => {
+    runTool(async ({ eid }) => {
       const result = await client.getEntityProperties(eid);
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 
   server.tool(
@@ -185,7 +186,7 @@ export function registerEntityTools(server: McpServer, client: SignalsClient) {
       digest: z.string().optional().describe("Optimistic locking digest"),
       force: z.boolean().optional().describe("Skip digest check"),
     },
-    async ({ eid, properties, digest, force }) => {
+    runTool(async ({ eid, properties, digest, force }) => {
       const body = {
         data: {
           type: "property",
@@ -194,7 +195,7 @@ export function registerEntityTools(server: McpServer, client: SignalsClient) {
       };
       const result = await client.updateEntityProperties(eid, body, { digest, force });
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 
   server.tool(
@@ -207,12 +208,12 @@ export function registerEntityTools(server: McpServer, client: SignalsClient) {
         .optional()
         .describe("Export format"),
     },
-    async ({ eid, format }) => {
+    runTool(async ({ eid, format }) => {
       const result = await client.exportEntity(eid, format);
       const text =
         typeof result === "string" ? result : JSON.stringify(result, null, 2);
       return { content: [{ type: "text", text }] };
-    },
+    }),
   );
 
   server.tool(
@@ -221,9 +222,9 @@ export function registerEntityTools(server: McpServer, client: SignalsClient) {
     {
       eid: z.string().describe("Template entity EID"),
     },
-    async ({ eid }) => {
+    runTool(async ({ eid }) => {
       const result = await client.getTemplateFields(eid);
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 }

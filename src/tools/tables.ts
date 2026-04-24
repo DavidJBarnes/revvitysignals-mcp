@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { SignalsClient } from "../client.js";
+import { runTool } from "./_util.js";
 
 export function registerTableTools(server: McpServer, client: SignalsClient) {
   server.tool(
@@ -13,10 +14,10 @@ export function registerTableTools(server: McpServer, client: SignalsClient) {
         .optional()
         .describe('Value representation (e.g. "normalized")'),
     },
-    async ({ eid, value }) => {
+    runTool(async ({ eid, value }) => {
       const result = await client.getTableData(eid, value);
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 
   server.tool(
@@ -25,10 +26,10 @@ export function registerTableTools(server: McpServer, client: SignalsClient) {
     {
       eid: z.string().describe("Table entity EID"),
     },
-    async ({ eid }) => {
+    runTool(async ({ eid }) => {
       const result = await client.getTableColumns(eid);
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 
   server.tool(
@@ -38,10 +39,10 @@ export function registerTableTools(server: McpServer, client: SignalsClient) {
       eid: z.string().describe("Table entity EID"),
       rowId: z.string().describe("Row ID"),
     },
-    async ({ eid, rowId }) => {
+    runTool(async ({ eid, rowId }) => {
       const result = await client.getTableRow(eid, rowId);
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 
   server.tool(
@@ -53,7 +54,7 @@ export function registerTableTools(server: McpServer, client: SignalsClient) {
         .array(z.record(z.unknown()))
         .describe("Array of row update objects with row IDs and cell values"),
     },
-    async ({ eid, rows }) => {
+    runTool(async ({ eid, rows }) => {
       const body = {
         data: rows.map((row) => ({
           type: "adtRow",
@@ -62,7 +63,7 @@ export function registerTableTools(server: McpServer, client: SignalsClient) {
       };
       const result = await client.updateTableData(eid, body);
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 
   server.tool(
@@ -77,10 +78,10 @@ export function registerTableTools(server: McpServer, client: SignalsClient) {
           'Comma-separated fields to include: reactants, products, solvents, conditions',
         ),
     },
-    async ({ eid, fields }) => {
+    runTool(async ({ eid, fields }) => {
       const result = await client.getStoichiometry(eid, fields);
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 
   server.tool(
@@ -92,9 +93,9 @@ export function registerTableTools(server: McpServer, client: SignalsClient) {
         .enum(["reactants", "products", "solvents", "conditions"])
         .describe("Which grid to get columns for"),
     },
-    async ({ eid, dataGridKind }) => {
+    runTool(async ({ eid, dataGridKind }) => {
       const result = await client.getStoichiometryColumns(eid, dataGridKind);
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 }

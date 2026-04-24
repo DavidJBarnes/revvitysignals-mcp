@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { SignalsClient } from "../client.js";
+import { runTool } from "./_util.js";
 
 export function registerAttributeTools(server: McpServer, client: SignalsClient) {
   server.tool(
@@ -10,10 +11,10 @@ export function registerAttributeTools(server: McpServer, client: SignalsClient)
       offset: z.number().int().min(0).optional().describe("Pagination offset"),
       limit: z.number().int().min(1).optional().describe("Pagination limit"),
     },
-    async (params) => {
+    runTool(async (params) => {
       const result = await client.listAttributes(params);
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 
   server.tool(
@@ -22,10 +23,10 @@ export function registerAttributeTools(server: McpServer, client: SignalsClient)
     {
       attrId: z.string().describe("Attribute ID (e.g. attribute:123)"),
     },
-    async ({ attrId }) => {
+    runTool(async ({ attrId }) => {
       const result = await client.getAttribute(attrId);
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 
   server.tool(
@@ -36,7 +37,7 @@ export function registerAttributeTools(server: McpServer, client: SignalsClient)
       type: z.string().describe("Attribute data type"),
       additionalAttributes: z.record(z.unknown()).optional().describe("Additional attribute properties"),
     },
-    async ({ name, type, additionalAttributes }) => {
+    runTool(async ({ name, type, additionalAttributes }) => {
       const body = {
         data: {
           type: "attribute",
@@ -49,7 +50,7 @@ export function registerAttributeTools(server: McpServer, client: SignalsClient)
       };
       const result = await client.createAttribute(body);
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 
   server.tool(
@@ -59,7 +60,7 @@ export function registerAttributeTools(server: McpServer, client: SignalsClient)
       attrId: z.string().describe("Attribute ID"),
       attributes: z.record(z.unknown()).describe("Attributes to update"),
     },
-    async ({ attrId, attributes }) => {
+    runTool(async ({ attrId, attributes }) => {
       const body = {
         data: {
           type: "attribute",
@@ -68,7 +69,7 @@ export function registerAttributeTools(server: McpServer, client: SignalsClient)
       };
       const result = await client.updateAttribute(attrId, body);
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 
   server.tool(
@@ -77,10 +78,10 @@ export function registerAttributeTools(server: McpServer, client: SignalsClient)
     {
       attrId: z.string().describe("Attribute ID"),
     },
-    async ({ attrId }) => {
+    runTool(async ({ attrId }) => {
       const result = await client.getAttributeOptions(attrId);
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 
   server.tool(
@@ -90,7 +91,7 @@ export function registerAttributeTools(server: McpServer, client: SignalsClient)
       attrId: z.string().describe("Attribute ID"),
       value: z.string().describe("Option value to add"),
     },
-    async ({ attrId, value }) => {
+    runTool(async ({ attrId, value }) => {
       const body = {
         data: {
           type: "option",
@@ -99,6 +100,6 @@ export function registerAttributeTools(server: McpServer, client: SignalsClient)
       };
       const result = await client.addAttributeOption(attrId, body);
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    },
+    }),
   );
 }
