@@ -94,7 +94,23 @@ export function registerTableTools(server: McpServer, client: SignalsClient) {
     },
     async ({ eid, dataGridKind }) => {
       const result = await client.getStoichiometryColumns(eid, dataGridKind);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return {
+        content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+      };
+    },
+  );
+
+  server.tool(
+    "get_variations_table_contents",
+    "Get content from a variations table",
+    {
+      eid: z.string().describe("Variations table entity EID"),
+    },
+    async ({ eid }) => {
+      const result = await client.getVariationsGridContents(eid);
+      return {
+        content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+      };
     },
   );
 }

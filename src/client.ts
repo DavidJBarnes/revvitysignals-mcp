@@ -406,6 +406,12 @@ export class SignalsClient {
     return this.request("PATCH", `/adt/${encodeURIComponent(eid)}`, { body });
   }
 
+  // --- Variations Tables ---
+
+  async getVariationsGridContents(eid: string): Promise<JsonApiResponse> {
+    return this.request("GET", `/variationsTables/${encodeURIComponent(eid)}`);
+  }
+
   // --- Stoichiometry ---
 
   async getStoichiometry(eid: string, fields?: string): Promise<JsonApiResponse> {
