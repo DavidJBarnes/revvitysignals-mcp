@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { SignalsClient } from "../client.js";
+import { toolText } from "./_util.js";
 
 export function registerTableTools(server: McpServer, client: SignalsClient) {
   server.tool(
@@ -15,7 +16,7 @@ export function registerTableTools(server: McpServer, client: SignalsClient) {
     },
     async ({ eid, value }) => {
       const result = await client.getTableData(eid, value);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -27,7 +28,7 @@ export function registerTableTools(server: McpServer, client: SignalsClient) {
     },
     async ({ eid }) => {
       const result = await client.getTableColumns(eid);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -40,7 +41,7 @@ export function registerTableTools(server: McpServer, client: SignalsClient) {
     },
     async ({ eid, rowId }) => {
       const result = await client.getTableRow(eid, rowId);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -61,7 +62,7 @@ export function registerTableTools(server: McpServer, client: SignalsClient) {
         })),
       };
       const result = await client.updateTableData(eid, body);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -79,7 +80,7 @@ export function registerTableTools(server: McpServer, client: SignalsClient) {
     },
     async ({ eid, fields }) => {
       const result = await client.getStoichiometry(eid, fields);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -94,7 +95,7 @@ export function registerTableTools(server: McpServer, client: SignalsClient) {
     },
     async ({ eid, dataGridKind }) => {
       const result = await client.getStoichiometryColumns(eid, dataGridKind);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 }

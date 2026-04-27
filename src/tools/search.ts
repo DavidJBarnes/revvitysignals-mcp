@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { SignalsClient } from "../client.js";
+import { toolText } from "./_util.js";
 
 export function registerSearchTools(server: McpServer, client: SignalsClient) {
   server.tool(
@@ -37,7 +38,7 @@ export function registerSearchTools(server: McpServer, client: SignalsClient) {
       const body: Record<string, unknown> = { query };
       if (options) body.options = options;
       const result = await client.searchEntities(body, { source, offset, limit });
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 }

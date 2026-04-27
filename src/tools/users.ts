@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { SignalsClient } from "../client.js";
+import { toolText } from "./_util.js";
 
 export function registerUserTools(server: McpServer, client: SignalsClient) {
   server.tool(
@@ -14,7 +15,7 @@ export function registerUserTools(server: McpServer, client: SignalsClient) {
     },
     async (params) => {
       const result = await client.listUsers(params);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -26,7 +27,7 @@ export function registerUserTools(server: McpServer, client: SignalsClient) {
     },
     async ({ userId }) => {
       const result = await client.getUser(userId);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -58,7 +59,7 @@ export function registerUserTools(server: McpServer, client: SignalsClient) {
         },
       };
       const result = await client.createUser(body);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -77,7 +78,7 @@ export function registerUserTools(server: McpServer, client: SignalsClient) {
         },
       };
       const result = await client.updateUser(userId, body);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -89,7 +90,7 @@ export function registerUserTools(server: McpServer, client: SignalsClient) {
     },
     async ({ userId }) => {
       const result = await client.deleteUser(userId);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -99,7 +100,7 @@ export function registerUserTools(server: McpServer, client: SignalsClient) {
     {},
     async () => {
       const result = await client.getMyProfile();
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 }
