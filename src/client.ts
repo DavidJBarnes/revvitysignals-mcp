@@ -55,6 +55,7 @@ export class SignalsApiError extends Error {
     public status: number,
     public statusText: string,
     public body: string,
+    public isRetryable: boolean = false,
   ) {
     super(`Signals API Error ${status} ${statusText}: ${body}`);
     this.name = "SignalsApiError";
@@ -76,7 +77,7 @@ export class SignalsClient {
     };
   }
 
-  private buildUrl(
+  buildUrl(
     path: string,
     params?: Record<string, string | number | boolean | undefined>,
   ): string {
@@ -114,7 +115,8 @@ export class SignalsClient {
 
     if (!response.ok) {
       const body = await response.text();
-      throw new SignalsApiError(response.status, response.statusText, body);
+      const isRetryable = response.status >= 500;
+      throw new SignalsApiError(response.status, response.statusText, body, isRetryable);
     }
 
     const contentType = response.headers.get("content-type") || "";
