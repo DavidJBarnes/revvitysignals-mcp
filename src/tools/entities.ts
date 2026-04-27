@@ -32,6 +32,14 @@ const ENTITY_TYPES = [
   "taskContainer",
 ] as const;
 
+const KNOWN_ENTITY_ATTRIBUTES: Record<string, z.ZodType> = {
+  description: z.string(),
+  status: z.string(),
+  owner: z.string(),
+  createdAt: z.string(),
+  modifiedAt: z.string(),
+};
+
 export function registerEntityTools(server: McpServer, client: SignalsClient) {
   server.tool(
     "list_entities",
@@ -104,9 +112,9 @@ export function registerEntityTools(server: McpServer, client: SignalsClient) {
         .optional()
         .describe("EID of the parent container (e.g. notebook EID for an experiment)"),
       additionalAttributes: z
-        .record(z.unknown())
+        .record(z.string(), z.union([z.string(), z.number(), z.boolean()]))
         .optional()
-        .describe("Additional attributes as key-value pairs"),
+        .describe("Additional attributes as key-value pairs (known: description, status, owner, createdAt, modifiedAt)"),
       digest: z.string().optional().describe("Optimistic locking digest"),
       force: z.boolean().optional().describe("Skip digest check"),
     },
