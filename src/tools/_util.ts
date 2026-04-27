@@ -19,6 +19,7 @@ export function runTool<P>(
       return await fn(params);
     } catch (err) {
       if (err instanceof SignalsApiError) {
+        console.error(`Signals API error:`, err);
         return {
           isError: true,
           content: [
@@ -29,6 +30,7 @@ export function runTool<P>(
           ],
         };
       }
+      console.error(`Tool error:`, err);
       const message = err instanceof Error ? err.message : String(err);
       return {
         isError: true,
