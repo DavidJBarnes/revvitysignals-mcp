@@ -28,6 +28,28 @@ export interface JsonApiResponse<T = unknown> {
   included?: unknown[];
 }
 
+export type QueryParams = Record<string, string | number | boolean | undefined>;
+
+export interface ParamMapping {
+  key: string;
+  remap?: string;
+}
+
+export function buildParams<T extends object>(
+  obj: T | undefined,
+  mappings: ParamMapping[],
+): QueryParams {
+  if (!obj) return {};
+  const result: QueryParams = {};
+  for (const { key, remap } of mappings) {
+    const value = (obj as Record<string, unknown>)[key];
+    if (value !== undefined) {
+      result[remap ?? key] = value as string | number | boolean | undefined;
+    }
+  }
+  return result;
+}
+
 export class SignalsApiError extends Error {
   constructor(
     public status: number,
@@ -117,17 +139,26 @@ export class SignalsClient {
     offset?: number;
     limit?: number;
   }): Promise<JsonApiResponse> {
-    const queryParams: Record<string, string | number | boolean | undefined> =
-      {};
-    if (params?.includeTypes) queryParams["includeTypes"] = params.includeTypes;
-    if (params?.excludeTypes) queryParams["excludeTypes"] = params.excludeTypes;
-    if (params?.includeOptions)
-      queryParams["includeOptions"] = params.includeOptions;
-    if (params?.start) queryParams["start"] = params.start;
-    if (params?.end) queryParams["end"] = params.end;
-    if (params?.offset !== undefined)
-      queryParams["page[offset]"] = params.offset;
-    if (params?.limit !== undefined) queryParams["page[limit]"] = params.limit;
+    const queryParams = buildParams(
+      {
+        includeTypes: params?.includeTypes,
+        excludeTypes: params?.excludeTypes,
+        includeOptions: params?.includeOptions,
+        start: params?.start,
+        end: params?.end,
+        offset: params?.offset,
+        limit: params?.limit,
+      },
+      [
+        { key: "includeTypes" },
+        { key: "excludeTypes" },
+        { key: "includeOptions" },
+        { key: "start" },
+        { key: "end" },
+        { key: "offset", remap: "page[offset]" },
+        { key: "limit", remap: "page[limit]" },
+      ],
+    );
     return this.request("GET", "/entities", { params: queryParams });
   }
 
@@ -136,22 +167,23 @@ export class SignalsClient {
   }
 
   async createEntity(body: unknown, params?: { digest?: string; force?: boolean }): Promise<JsonApiResponse> {
-    const queryParams: Record<string, string | number | boolean | undefined> = {};
-    if (params?.digest) queryParams["digest"] = params.digest;
-    if (params?.force !== undefined) queryParams["force"] = params.force;
+    const queryParams = buildParams(params, [
+      { key: "digest" },
+      { key: "force" },
+    ]);
     return this.request("POST", "/entities", { body, params: queryParams });
   }
 
   async deleteEntity(eid: string, params?: { digest?: string; force?: boolean }): Promise<JsonApiResponse> {
-    const queryParams: Record<string, string | number | boolean | undefined> = {};
-    if (params?.digest) queryParams["digest"] = params.digest;
-    if (params?.force !== undefined) queryParams["force"] = params.force;
+    const queryParams = buildParams(params, [
+      { key: "digest" },
+      { key: "force" },
+    ]);
     return this.request("DELETE", `/entities/${encodeURIComponent(eid)}`, { params: queryParams });
   }
 
   async getEntityChildren(eid: string, params?: { order?: string }): Promise<JsonApiResponse> {
-    const queryParams: Record<string, string | number | boolean | undefined> = {};
-    if (params?.order) queryParams["order"] = params.order;
+    const queryParams = buildParams(params, [{ key: "order" }]);
     return this.request("GET", `/entities/${encodeURIComponent(eid)}/children`, { params: queryParams });
   }
 
@@ -164,9 +196,10 @@ export class SignalsClient {
     body: unknown,
     params?: { digest?: string; force?: boolean },
   ): Promise<JsonApiResponse> {
-    const queryParams: Record<string, string | number | boolean | undefined> = {};
-    if (params?.digest) queryParams["digest"] = params.digest;
-    if (params?.force !== undefined) queryParams["force"] = params.force;
+    const queryParams = buildParams(params, [
+      { key: "digest" },
+      { key: "force" },
+    ]);
     return this.request("PATCH", `/entities/${encodeURIComponent(eid)}/properties`, {
       body,
       params: queryParams,
@@ -174,8 +207,7 @@ export class SignalsClient {
   }
 
   async exportEntity(eid: string, format?: string): Promise<unknown> {
-    const queryParams: Record<string, string | number | boolean | undefined> = {};
-    if (format) queryParams["format"] = format;
+    const queryParams = buildParams({ format }, [{ key: "format" }]);
     return this.request("GET", `/entities/${encodeURIComponent(eid)}/export`, { params: queryParams });
   }
 
@@ -189,10 +221,14 @@ export class SignalsClient {
     query: unknown,
     params?: { source?: string; offset?: number; limit?: number },
   ): Promise<JsonApiResponse> {
-    const queryParams: Record<string, string | number | boolean | undefined> = {};
-    if (params?.source) queryParams["source"] = params.source;
-    if (params?.offset !== undefined) queryParams["page[offset]"] = params.offset;
-    if (params?.limit !== undefined) queryParams["page[limit]"] = params.limit;
+    const queryParams = buildParams(
+      { source: params?.source, offset: params?.offset, limit: params?.limit },
+      [
+        { key: "source" },
+        { key: "offset", remap: "page[offset]" },
+        { key: "limit", remap: "page[limit]" },
+      ],
+    );
     return this.request("POST", "/entities/search", { body: query, params: queryParams });
   }
 
@@ -204,11 +240,15 @@ export class SignalsClient {
     offset?: number;
     limit?: number;
   }): Promise<JsonApiResponse> {
-    const queryParams: Record<string, string | number | boolean | undefined> = {};
-    if (params?.q) queryParams["q"] = params.q;
-    if (params?.enabled !== undefined) queryParams["enabled"] = params.enabled;
-    if (params?.offset !== undefined) queryParams["offset"] = params.offset;
-    if (params?.limit !== undefined) queryParams["limit"] = params.limit;
+    const queryParams = buildParams(
+      { q: params?.q, enabled: params?.enabled, offset: params?.offset, limit: params?.limit },
+      [
+        { key: "q" },
+        { key: "enabled" },
+        { key: "offset" },
+        { key: "limit" },
+      ],
+    );
     return this.request("GET", "/users", { params: queryParams });
   }
 
@@ -231,9 +271,10 @@ export class SignalsClient {
   // --- Groups ---
 
   async listGroups(params?: PaginationParams): Promise<JsonApiResponse> {
-    const queryParams: Record<string, string | number | boolean | undefined> = {};
-    if (params?.offset !== undefined) queryParams["offset"] = params.offset;
-    if (params?.limit !== undefined) queryParams["limit"] = params.limit;
+    const queryParams = buildParams(params, [
+      { key: "offset" },
+      { key: "limit" },
+    ]);
     return this.request("GET", "/groups", { params: queryParams });
   }
 
@@ -246,8 +287,7 @@ export class SignalsClient {
   }
 
   async updateGroup(groupId: string, body: unknown, force?: boolean): Promise<JsonApiResponse> {
-    const queryParams: Record<string, string | number | boolean | undefined> = {};
-    if (force !== undefined) queryParams["force"] = force;
+    const queryParams = buildParams({ force }, [{ key: "force" }]);
     return this.request("PATCH", `/groups/${encodeURIComponent(groupId)}`, { body, params: queryParams });
   }
 
@@ -260,8 +300,7 @@ export class SignalsClient {
   }
 
   async addGroupMember(groupId: string, body: unknown, force?: boolean): Promise<JsonApiResponse> {
-    const queryParams: Record<string, string | number | boolean | undefined> = {};
-    if (force !== undefined) queryParams["force"] = force;
+    const queryParams = buildParams({ force }, [{ key: "force" }]);
     return this.request("POST", `/groups/${encodeURIComponent(groupId)}/members`, { body, params: queryParams });
   }
 
@@ -275,9 +314,10 @@ export class SignalsClient {
   // --- Roles ---
 
   async listRoles(params?: PaginationParams): Promise<JsonApiResponse> {
-    const queryParams: Record<string, string | number | boolean | undefined> = {};
-    if (params?.offset !== undefined) queryParams["offset"] = params.offset;
-    if (params?.limit !== undefined) queryParams["limit"] = params.limit;
+    const queryParams = buildParams(params, [
+      { key: "offset" },
+      { key: "limit" },
+    ]);
     return this.request("GET", "/roles", { params: queryParams });
   }
 
@@ -340,9 +380,10 @@ export class SignalsClient {
     body: unknown,
     params?: { rule?: string; importType?: string },
   ): Promise<JsonApiResponse> {
-    const queryParams: Record<string, string | number | boolean | undefined> = {};
-    if (params?.rule) queryParams["rule"] = params.rule;
-    if (params?.importType) queryParams["importType"] = params.importType;
+    const queryParams = buildParams(params, [
+      { key: "rule" },
+      { key: "importType" },
+    ]);
     return this.request("POST", `/materials/${encodeURIComponent(libraryName)}/bulkImport`, {
       body,
       params: queryParams,
@@ -356,9 +397,10 @@ export class SignalsClient {
   // --- Attributes ---
 
   async listAttributes(params?: PaginationParams): Promise<JsonApiResponse> {
-    const queryParams: Record<string, string | number | boolean | undefined> = {};
-    if (params?.offset !== undefined) queryParams["offset"] = params.offset;
-    if (params?.limit !== undefined) queryParams["limit"] = params.limit;
+    const queryParams = buildParams(params, [
+      { key: "offset" },
+      { key: "limit" },
+    ]);
     return this.request("GET", "/attributes", { params: queryParams });
   }
 
@@ -389,8 +431,7 @@ export class SignalsClient {
   // --- ADT (Advanced Data Tables) ---
 
   async getTableData(eid: string, value?: string): Promise<JsonApiResponse> {
-    const queryParams: Record<string, string | number | boolean | undefined> = {};
-    if (value) queryParams["value"] = value;
+    const queryParams = buildParams({ value }, [{ key: "value" }]);
     return this.request("GET", `/adt/${encodeURIComponent(eid)}`, { params: queryParams });
   }
 
@@ -409,8 +450,7 @@ export class SignalsClient {
   // --- Stoichiometry ---
 
   async getStoichiometry(eid: string, fields?: string): Promise<JsonApiResponse> {
-    const queryParams: Record<string, string | number | boolean | undefined> = {};
-    if (fields) queryParams["fields"] = fields;
+    const queryParams = buildParams({ fields }, [{ key: "fields" }]);
     return this.request("GET", `/stoichiometry/${encodeURIComponent(eid)}`, { params: queryParams });
   }
 

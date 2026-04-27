@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { SignalsClient } from "../client.js";
+import { toolText } from "./_util.js";
 
 export function registerGroupTools(server: McpServer, client: SignalsClient) {
   server.tool(
@@ -12,7 +13,7 @@ export function registerGroupTools(server: McpServer, client: SignalsClient) {
     },
     async (params) => {
       const result = await client.listGroups(params);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -24,7 +25,7 @@ export function registerGroupTools(server: McpServer, client: SignalsClient) {
     },
     async ({ groupId }) => {
       const result = await client.getGroup(groupId);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -46,7 +47,7 @@ export function registerGroupTools(server: McpServer, client: SignalsClient) {
         },
       };
       const result = await client.createGroup(body);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -70,7 +71,7 @@ export function registerGroupTools(server: McpServer, client: SignalsClient) {
         },
       };
       const result = await client.updateGroup(groupId, body, force);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -82,7 +83,7 @@ export function registerGroupTools(server: McpServer, client: SignalsClient) {
     },
     async ({ groupId }) => {
       const result = await client.deleteGroup(groupId);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -94,7 +95,7 @@ export function registerGroupTools(server: McpServer, client: SignalsClient) {
     },
     async ({ groupId }) => {
       const result = await client.getGroupMembers(groupId);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -115,7 +116,7 @@ export function registerGroupTools(server: McpServer, client: SignalsClient) {
         },
       };
       const result = await client.addGroupMember(groupId, body, force);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -128,7 +129,7 @@ export function registerGroupTools(server: McpServer, client: SignalsClient) {
     },
     async ({ groupId, userId }) => {
       const result = await client.removeGroupMember(groupId, userId);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -141,7 +142,7 @@ export function registerGroupTools(server: McpServer, client: SignalsClient) {
     },
     async (params) => {
       const result = await client.listRoles(params);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -153,7 +154,7 @@ export function registerGroupTools(server: McpServer, client: SignalsClient) {
     },
     async ({ roleId }) => {
       const result = await client.getRole(roleId);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 }

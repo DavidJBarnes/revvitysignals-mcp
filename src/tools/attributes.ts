@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { SignalsClient } from "../client.js";
+import { toolText } from "./_util.js";
 
 export function registerAttributeTools(server: McpServer, client: SignalsClient) {
   server.tool(
@@ -12,7 +13,7 @@ export function registerAttributeTools(server: McpServer, client: SignalsClient)
     },
     async (params) => {
       const result = await client.listAttributes(params);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -24,7 +25,7 @@ export function registerAttributeTools(server: McpServer, client: SignalsClient)
     },
     async ({ attrId }) => {
       const result = await client.getAttribute(attrId);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -48,7 +49,7 @@ export function registerAttributeTools(server: McpServer, client: SignalsClient)
         },
       };
       const result = await client.createAttribute(body);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -67,7 +68,7 @@ export function registerAttributeTools(server: McpServer, client: SignalsClient)
         },
       };
       const result = await client.updateAttribute(attrId, body);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -79,7 +80,7 @@ export function registerAttributeTools(server: McpServer, client: SignalsClient)
     },
     async ({ attrId }) => {
       const result = await client.getAttributeOptions(attrId);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -98,7 +99,7 @@ export function registerAttributeTools(server: McpServer, client: SignalsClient)
         },
       };
       const result = await client.addAttributeOption(attrId, body);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 }

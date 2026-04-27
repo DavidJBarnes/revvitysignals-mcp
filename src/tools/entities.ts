@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { SignalsClient } from "../client.js";
+import { toolText } from "./_util.js";
 
 const ENTITY_TYPES = [
   "journal",
@@ -71,7 +72,7 @@ export function registerEntityTools(server: McpServer, client: SignalsClient) {
     },
     async (params) => {
       const result = await client.listEntities(params);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -83,7 +84,7 @@ export function registerEntityTools(server: McpServer, client: SignalsClient) {
     },
     async ({ eid }) => {
       const result = await client.getEntity(eid);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -130,7 +131,7 @@ export function registerEntityTools(server: McpServer, client: SignalsClient) {
         },
       };
       const result = await client.createEntity(body, { digest, force });
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -144,7 +145,7 @@ export function registerEntityTools(server: McpServer, client: SignalsClient) {
     },
     async ({ eid, digest, force }) => {
       const result = await client.deleteEntity(eid, { digest, force });
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -160,7 +161,7 @@ export function registerEntityTools(server: McpServer, client: SignalsClient) {
     },
     async ({ eid, order }) => {
       const result = await client.getEntityChildren(eid, { order });
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -172,7 +173,7 @@ export function registerEntityTools(server: McpServer, client: SignalsClient) {
     },
     async ({ eid }) => {
       const result = await client.getEntityProperties(eid);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -193,7 +194,7 @@ export function registerEntityTools(server: McpServer, client: SignalsClient) {
         },
       };
       const result = await client.updateEntityProperties(eid, body, { digest, force });
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -223,7 +224,7 @@ export function registerEntityTools(server: McpServer, client: SignalsClient) {
     },
     async ({ eid }) => {
       const result = await client.getTemplateFields(eid);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 }

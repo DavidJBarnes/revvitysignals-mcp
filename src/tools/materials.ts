@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { SignalsClient } from "../client.js";
+import { toolText } from "./_util.js";
 
 export function registerMaterialTools(server: McpServer, client: SignalsClient) {
   server.tool(
@@ -9,7 +10,7 @@ export function registerMaterialTools(server: McpServer, client: SignalsClient) 
     {},
     async () => {
       const result = await client.listMaterialLibraries();
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -21,7 +22,7 @@ export function registerMaterialTools(server: McpServer, client: SignalsClient) 
     },
     async ({ mid }) => {
       const result = await client.getMaterial(mid);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -34,7 +35,7 @@ export function registerMaterialTools(server: McpServer, client: SignalsClient) 
     },
     async ({ libraryName, assetId }) => {
       const result = await client.getMaterialAsset(libraryName, assetId);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -47,7 +48,7 @@ export function registerMaterialTools(server: McpServer, client: SignalsClient) 
     },
     async ({ libraryName, body }) => {
       const result = await client.createMaterialAsset(libraryName, body);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -60,7 +61,7 @@ export function registerMaterialTools(server: McpServer, client: SignalsClient) 
     },
     async ({ libraryName, assetId }) => {
       const result = await client.getMaterialBatches(libraryName, assetId);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -74,7 +75,7 @@ export function registerMaterialTools(server: McpServer, client: SignalsClient) 
     },
     async ({ libraryName, assetName, body }) => {
       const result = await client.createMaterialBatch(libraryName, assetName, body);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -86,7 +87,7 @@ export function registerMaterialTools(server: McpServer, client: SignalsClient) 
     },
     async ({ libraryName }) => {
       const result = await client.startBulkExport(libraryName);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -98,7 +99,7 @@ export function registerMaterialTools(server: McpServer, client: SignalsClient) 
     },
     async ({ reportId }) => {
       const result = await client.getBulkExportStatus(reportId);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -119,7 +120,7 @@ export function registerMaterialTools(server: McpServer, client: SignalsClient) 
     },
     async ({ libraryName, body, rule, importType }) => {
       const result = await client.startBulkImport(libraryName, body, { rule, importType });
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 
@@ -131,7 +132,7 @@ export function registerMaterialTools(server: McpServer, client: SignalsClient) 
     },
     async ({ jobId }) => {
       const result = await client.getBulkImportStatus(jobId);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      return toolText(result);
     },
   );
 }
