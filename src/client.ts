@@ -77,7 +77,7 @@ export class SignalsClient {
     };
   }
 
-  private buildUrl(
+  buildUrl(
     path: string,
     params?: Record<string, string | number | boolean | undefined>,
   ): string {
