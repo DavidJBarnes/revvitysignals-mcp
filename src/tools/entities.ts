@@ -32,14 +32,6 @@ const ENTITY_TYPES = [
   "taskContainer",
 ] as const;
 
-const KNOWN_ENTITY_ATTRIBUTES: Record<string, z.ZodType> = {
-  description: z.string(),
-  status: z.string(),
-  owner: z.string(),
-  createdAt: z.string(),
-  modifiedAt: z.string(),
-};
-
 export function registerEntityTools(server: McpServer, client: SignalsClient) {
   server.tool(
     "list_entities",
@@ -114,11 +106,17 @@ export function registerEntityTools(server: McpServer, client: SignalsClient) {
       additionalAttributes: z
         .record(z.string(), z.union([z.string(), z.number(), z.boolean()]))
         .optional()
-        .describe("Additional attributes as key-value pairs (known: description, status, owner, createdAt, modifiedAt)"),
+        .describe("Additional attributes as key-value pairs"),
       digest: z.string().optional().describe("Optimistic locking digest"),
       force: z.boolean().optional().describe("Skip digest check"),
     },
     async ({ type, name, description, templateEid, ancestorEid, additionalAttributes, digest, force }) => {
+      if (description && additionalAttributes?.description) {
+        return {
+          isError: true,
+          content: [{ type: "text", text: "Error: Cannot provide both 'description' and 'additionalAttributes.description'. Use only one." }],
+        };
+      }
       const body: Record<string, unknown> = {
         data: {
           type: "entity",
@@ -190,7 +188,7 @@ export function registerEntityTools(server: McpServer, client: SignalsClient) {
     "Update properties of an entity",
     {
       eid: z.string().describe("Entity ID"),
-      properties: z.record(z.unknown()).describe("Properties to update as key-value pairs"),
+      properties: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).describe("Properties to update as key-value pairs"),
       digest: z.string().optional().describe("Optimistic locking digest"),
       force: z.boolean().optional().describe("Skip digest check"),
     },
