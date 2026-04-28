@@ -87,7 +87,7 @@ describe("SignalsClient", () => {
       expect(thrownError!.isRetryable).toBe(true);
     });
 
-    it("returns text for non-JSON content-type", async () => {
+    it("throws error for non-JSON content-type with body", async () => {
       const mockResponse = {
         ok: true,
         headers: new Headers({ "content-type": "text/plain" }),
@@ -96,9 +96,23 @@ describe("SignalsClient", () => {
       vi.mocked(fetch).mockResolvedValue(mockResponse as Response);
 
       const client = makeClient();
+      await expect(client.request("GET", "/test")).rejects.toThrow(
+        "Unexpected response content-type: text/plain. Expected application/json",
+      );
+    });
+
+    it("allows empty response for non-JSON content-type", async () => {
+      const mockResponse = {
+        ok: true,
+        headers: new Headers({ "content-type": "text/plain" }),
+        text: vi.fn().mockResolvedValue(""),
+      };
+      vi.mocked(fetch).mockResolvedValue(mockResponse as Response);
+
+      const client = makeClient();
       const result = await client.request("GET", "/test");
 
-      expect(result).toBe("plain text");
+      expect(result).toBe("");
     });
 
     it("includes x-api-key header", async () => {

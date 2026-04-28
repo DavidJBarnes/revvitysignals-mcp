@@ -127,7 +127,13 @@ export class SignalsClient {
       return (await response.json()) as T;
     }
 
-    return (await response.text()) as unknown as T;
+    const text = await response.text();
+    if (text) {
+      throw new Error(
+        `Unexpected response content-type: ${contentType}. Expected application/json`,
+      );
+    }
+    return text as unknown as T;
   }
 
   // --- Entities ---
